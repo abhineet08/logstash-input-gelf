@@ -111,6 +111,7 @@ class LogStash::Inputs::Gelf < LogStash::Inputs::Base
       next if data.nil?
 
       event = self.class.new_event(data, client[3])
+      next if event.nil?
 
       remap_gelf(event) if @remap
       strip_leading_underscore(event) if @strip_leading_underscore
@@ -126,7 +127,7 @@ class LogStash::Inputs::Gelf < LogStash::Inputs::Base
   # @return [LogStash::Event] new event with parsed json gelf, assigned source host and coerced timestamp
   def self.new_event(json_gelf, host)
     event = parse(json_gelf)
-
+    return if event.nil?
     event[SOURCE_HOST_FIELD] = host
 
     if (gelf_timestamp = event[TIMESTAMP_GELF_FIELD]).is_a?(Numeric)
